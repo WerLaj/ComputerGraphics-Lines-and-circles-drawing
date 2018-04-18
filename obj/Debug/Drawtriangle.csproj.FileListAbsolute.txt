@@ -1,0 +1,17 @@
+D:\projects\Drawtriangle\Drawtriangle\bin\Debug\Drawtriangle.exe
+D:\projects\Drawtriangle\Drawtriangle\bin\Debug\Drawtriangle.pdb
+D:\projects\Drawtriangle\Drawtriangle\obj\Debug\Drawtriangle.csprojResolveAssemblyReference.cache
+D:\projects\Drawtriangle\Drawtriangle\obj\Debug\Drawtriangle.Form1.resources
+D:\projects\Drawtriangle\Drawtriangle\obj\Debug\Drawtriangle.Properties.Resources.resources
+D:\projects\Drawtriangle\Drawtriangle\obj\Debug\Drawtriangle.csproj.GenerateResource.Cache
+D:\projects\Drawtriangle\Drawtriangle\obj\Debug\Drawtriangle.exe
+D:\projects\Drawtriangle\Drawtriangle\obj\Debug\Drawtriangle.pdb
+C:\Users\werka\Downloads\Drawtriangle\bin\Debug\Drawtriangle.exe
+C:\Users\werka\Downloads\Drawtriangle\bin\Debug\Drawtriangle.pdb
+C:\Users\werka\Downloads\Drawtriangle\obj\Debug\Drawtriangle.csprojResolveAssemblyReference.cache
+C:\Users\werka\Downloads\Drawtriangle\obj\Debug\Drawtriangle.Form1.resources
+C:\Users\werka\Downloads\Drawtriangle\obj\Debug\Drawtriangle.Properties.Resources.resources
+C:\Users\werka\Downloads\Drawtriangle\obj\Debug\Drawtriangle.csproj.GenerateResource.Cache
+C:\Users\werka\Downloads\Drawtriangle\obj\Debug\Drawtriangle.csproj.CoreCompileInputs.cache
+C:\Users\werka\Downloads\Drawtriangle\obj\Debug\Drawtriangle.exe
+C:\Users\werka\Downloads\Drawtriangle\obj\Debug\Drawtriangle.pdb
