@@ -61,6 +61,15 @@ namespace Drawtriangle
 
         void lineDDA(int x1, int y1, int x2, int y2)
         {
+            if (x1 > x2)
+            {
+                int temp = x1;
+                x1 = x2;
+                x2 = temp;
+                temp = y1;
+                y1 = y2;
+                y2 = temp;
+            }
             float dy = y2 - y1;
             float dx = x2 - x1;
             float m = dy / dx;
@@ -172,7 +181,7 @@ namespace Drawtriangle
             }            
         }
 
-        public float cover(float r, float d)
+        public float cover(float d, float r)
         {
             float cov = 0;
 
@@ -210,7 +219,7 @@ namespace Drawtriangle
             }
             else
             {
-                if(D >= 0 && D <=w)
+                if(D >= 0 && D <= w)
                 {
                     cov = 1 - cover(w - D, r) - cover(w + D, r);
                 }
@@ -243,15 +252,48 @@ namespace Drawtriangle
         public Color lerp(Color a, Color b, float t)
         {
             int red = (int)(a.R + (b.R - a.R) * t);
+            if (red > 255) red = 255;
+            if (red < 0) red = 0;
             int green = (int)(a.G + (b.G - a.G) * t);
+            if (green > 255) green = 255;
+            if (green < 0) green = 0;
             int blue = (int)(a.B + (b.B - a.B) * t);
+            if (blue > 255) blue = 255;
+            if (blue < 0) blue = 0;
             return Color.FromArgb(red, green, blue);
         }
 
         public void ThickAntialiasedLine(int x1, int y1, int x2, int y2, float thickness)
         {
-            //initial values in Bresenham;s algorithm
             int dx = x2 - x1, dy = y2 - y1;
+            float steep = Math.Abs(dy / dx);
+            if(steep > 1)
+            {
+                int temp = x1;
+                x1 = y1;
+                y1 = temp;
+                int temp2 = x2;
+                x2 = y2;
+                y2 = temp2;
+            }
+            if (x1 > x2)
+            {
+                int temp = x1;
+                x1 = x2;
+                x2 = temp;
+                int temp2 = y1;
+                y1 = y2;
+                y2 = temp2;
+            }
+            if (y1 > y2)
+            {
+                //y1 = -y1;
+                //y2 = -y2;
+                int dif = y1 - y2;
+                y2 = y2 + 2 * dif;
+            }
+            dx = x2 - x1;
+            dy = y2 - y1;
             int dE = 2 * dy, dNE = 2 * (dy - dx);
             int d = 2 * dy - dx;
             int two_v_dx = 0; //numerator, v=0 for the first pixel
@@ -295,7 +337,7 @@ namespace Drawtriangle
 
         private void button5_Click(object sender, EventArgs e)
         {
-            ThickAntialiasedLine(v1.X, v1.Y, v2.X, v2.Y, 10);
+            ThickAntialiasedLine(v1.X, v1.Y, v2.X, v2.Y, thickness);
         }
 
         private void thicknessComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -310,6 +352,15 @@ namespace Drawtriangle
 
         public void drawWithPen(int x1, int y1, int x2, int y2, int t)
         {
+            if (x1 > x2)
+            {
+                int temp = x1;
+                x1 = x2;
+                x2 = temp;
+                int temp2 = y1;
+                y1 = y2;
+                y2 = temp2;
+            }
             float dy = y2 - y1;
             float dx = x2 - x1;
             float m = dy / dx;
