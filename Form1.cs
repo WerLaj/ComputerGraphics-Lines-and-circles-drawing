@@ -13,6 +13,7 @@ namespace Drawtriangle
     {
         public Bitmap bmp;
         public Bitmap pixel;
+        public Bitmap bmp2;
         public Graphics graphics;
 
         Point v1;
@@ -31,6 +32,7 @@ namespace Drawtriangle
             InitializeComponent();
             pictureBox1.Image = null;
             bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+            bmp2 = new Bitmap(pictureBox1.Width * 2, pictureBox1.Height * 2);
             pixel = new Bitmap(1, 1);
             pictureBox1.Image = bmp;
             graphics = pictureBox1.CreateGraphics();
@@ -80,6 +82,60 @@ namespace Drawtriangle
                 graphics.DrawImageUnscaled(pixel, x, (int)y);
                 bmp.SetPixel(x, (int)y, Color.Blue);
                 y += m;
+            }
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            supersampling(v1.X, v1.Y, v2.X, v2.Y, thickness);
+        }
+
+        void supersampling(int x1, int y1, int x2, int y2, int thickness)
+        {
+            int x1B = x1 * 2;
+            int x2B = x2 * 2;
+            int y1B = y1 * 2;
+            int y2B = y2 * 2;
+            int t = 2*thickness;
+            float dy = y2B - y1B;
+            float dx = x2B - x1B;
+            float m = dy / dx;
+            float y = y1B;
+            int radius = t;
+            for (int x = x1B; x <= x2B; ++x)
+            {
+                int Left = x - radius;
+                int Right = x + radius;
+                int Top = (int)y - radius;
+                int Bottom = (int)y + radius;
+                for (int j = Top; j <= Bottom; ++j)
+                {
+                    for (int k = Left; k <= Right; ++k)
+                    {
+                        double c1 = x - k;
+                        int c2 = (int)y - j;
+                        double dist = Math.Pow(c1, 2.0) + Math.Pow(c2, 2.0);
+                        if (dist <= Math.Pow(radius, 2))
+                        {
+                            /*pixel.SetPixel(0, 0, Color.Black);
+                            graphics.DrawImageUnscaled(pixel, k, j);*/
+                            bmp2.SetPixel(k, j, Color.Black);
+                        }
+                    }
+                }
+                y += m;
+            }
+
+            for (int i = 0; i < bmp.Width; i++)
+            {
+                for (int j = 0; j < bmp.Height; j++)
+                {
+                    float avg = (bmp2.GetPixel(2*i, 2*j).R + bmp2.GetPixel(2*i + 1, 2*j).R + bmp2.GetPixel(2*i, 2*j + 1).R + bmp2.GetPixel(2*i + 1,2* j + 1).R) / 4;
+                    Color c = Color.FromArgb((int)(avg), (int)(avg), (int)(avg));
+                    /*pixel.SetPixel(0, 0, c);
+                    graphics.DrawImageUnscaled(pixel, i, j);*/
+                    bmp.SetPixel(i, j, c);
+                }
             }
         }
 
@@ -187,11 +243,10 @@ namespace Drawtriangle
 
             if (d <= r)
             {
-                float c1 = Convert.ToSingle((d * Math.Sqrt(r * r - d * d)) / (Math.PI * r * r));
-                double a = Math.Asin(d / r);
-                double b = Math.PI * a;
-                float c2 = Convert.ToSingle(1 / b);
-                cov = (float)0.5 - c1 - c2;
+                double a = Math.Acos(d / r);
+                float c1 = Convert.ToSingle((1 / Math.PI) * a);
+                float c2 = Convert.ToSingle((d * Math.Sqrt(r * r - d * d)) / (Math.PI * r * r));
+                cov = c1 - c2;
             }
             else
             {
@@ -267,6 +322,7 @@ namespace Drawtriangle
         {
             int dx = x2 - x1, dy = y2 - y1;
             float steep = Math.Abs(dy / dx);
+            int delayY = 1;
             if(steep > 1)
             {
                 int temp = x1;
@@ -287,10 +343,7 @@ namespace Drawtriangle
             }
             if (y1 > y2)
             {
-                //y1 = -y1;
-                //y2 = -y2;
-                int dif = y1 - y2;
-                y2 = y2 + 2 * dif;
+                delayY = -1;
             }
             dx = x2 - x1;
             dy = y2 - y1;
@@ -301,9 +354,18 @@ namespace Drawtriangle
             float two_dx_invDenom = 2 * dx * invDenom; //precomputed constant
             int x = x1, y = y1;
             int i;
-            IntensifyPixel(x, y, thickness, 0);
-            for (i = 1; IntensifyPixel(x, y + i, thickness, i * two_dx_invDenom); ++i) ;
-            for (i = 1; IntensifyPixel(x, y - i, thickness, i * two_dx_invDenom); ++i) ;
+            if (steep > 1)
+            {
+                IntensifyPixel(x, y, thickness, 0);
+                for (i = 1; IntensifyPixel(y + i * delayY, x, thickness, i * delayY * two_dx_invDenom); ++i) ;
+                for (i = 1; IntensifyPixel(y - i * delayY, x, thickness, i * delayY * two_dx_invDenom); ++i) ;
+            }
+            else
+            {
+                IntensifyPixel(x, y, thickness, 0);
+                for (i = 1; IntensifyPixel(x, y + i, thickness, i * two_dx_invDenom); ++i) ;
+                for (i = 1; IntensifyPixel(x, y - i, thickness, i * two_dx_invDenom); ++i) ;
+            }
             while (x < x2)
             {
                 ++x;
@@ -316,12 +378,22 @@ namespace Drawtriangle
                 {
                     two_v_dx = d - dx;
                     d += dNE;
-                    ++y;
+                    //++y; ////deltay
+                    y = y + delayY;
                 }
                 // Now set the chosen pixel and its neighbors
-                IntensifyPixel(x, y, thickness, two_v_dx * invDenom);
-                for (i = 1; IntensifyPixel(x, y + i, thickness, i * two_dx_invDenom - two_v_dx * invDenom); ++i) ;
-                for (i = 1; IntensifyPixel(x, y - i, thickness, i * two_dx_invDenom + two_v_dx * invDenom); ++i) ;
+                if (steep > 1)
+                {
+                    IntensifyPixel(y, x, thickness, two_v_dx * invDenom);
+                    for (i = 1; IntensifyPixel(y + i * delayY, x, thickness, i * delayY * two_dx_invDenom - two_v_dx * invDenom); ++i) ;
+                    for (i = 1; IntensifyPixel(y - i * delayY, x, thickness, i * delayY * two_dx_invDenom + two_v_dx * invDenom); ++i) ;
+                }
+                else
+                {
+                    IntensifyPixel(x, y, thickness, two_v_dx * invDenom);
+                    for (i = 1; IntensifyPixel(x, y + i, thickness, i * two_dx_invDenom - two_v_dx * invDenom); ++i) ;
+                    for (i = 1; IntensifyPixel(x, y - i, thickness, i * two_dx_invDenom + two_v_dx * invDenom); ++i) ;
+                }
             }
         }
 
@@ -390,5 +462,6 @@ namespace Drawtriangle
                 y += m;
             }
         }
+
     }
 }
